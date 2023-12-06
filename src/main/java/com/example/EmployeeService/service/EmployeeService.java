@@ -1,5 +1,7 @@
 package com.example.EmployeeService.service;
 
+import com.example.EmployeeService.config.AddressConfig;
+import com.example.EmployeeService.dto.AddressDto;
 import com.example.EmployeeService.dto.EmployeeDto;
 import com.example.EmployeeService.entity.Employee;
 import com.example.EmployeeService.repository.EmployeeRepo;
@@ -16,8 +18,14 @@ public class EmployeeService {
     @Autowired
     private ModelMapper modelMapper;
 
+    @Autowired
+    private AddressConfig addressConfig;
+
     public EmployeeDto getEmployeeById(Long id){
         Employee employee = employeeRepo.getById(id);
-        return modelMapper.map(employee, EmployeeDto.class);
+        AddressDto addressDto = addressConfig.addressDto(id);
+        EmployeeDto employeeDto = modelMapper.map(employee, EmployeeDto.class);
+        employeeDto.setAddress(addressDto);
+        return employeeDto;
     }
 }
