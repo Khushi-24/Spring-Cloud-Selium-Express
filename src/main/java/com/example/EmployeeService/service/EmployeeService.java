@@ -30,17 +30,23 @@ public class EmployeeService {
     @Autowired
     private RestTemplate restTemplate;
 
+//    @Autowired
+//    private DiscoveryClient discoveryClient;
+
+
     @Autowired
-    private DiscoveryClient discoveryClient;
+    private LoadBalancerClient loadBalancerClient;
 
     public EmployeeDto getEmployeeById(Long id){
         Employee employee = employeeRepo.getById(id);
 //        AddressDto addressDto = addressConfig.addressDto(id);
 
         //There might be more than one instances running of address service
-        List<ServiceInstance> instances = discoveryClient.getInstances("address-service");
-        ServiceInstance serviceInstance = instances.get(0);
+//        List<ServiceInstance> instances = discoveryClient.getInstances("address-service");
+//        ServiceInstance serviceInstance = instances.get(0);
+        ServiceInstance serviceInstance = loadBalancerClient.choose("address-service");
         String uri = serviceInstance.getUri().toString();
+        System.out.println("Url >>>>>>>>>   "+uri);
         AddressDto addressDto =restTemplate.getForObject(uri +"/address/"+id, AddressDto.class);
         EmployeeDto employeeDto = modelMapper.map(employee, EmployeeDto.class);
         employeeDto.setAddress(addressDto);
